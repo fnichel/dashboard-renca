@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crecer en Renca — Indicadores 2026</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f4f0;
+    color: #1a1a1a;
+    padding: 2rem 1rem;
+    min-height: 100vh;
+  }
+  .container { max-width: 900px; margin: 0 auto; }
+  .header {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2rem 2rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 0.5px solid #e0dfd8;
+  }
+  .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .header h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
+  .header p { font-size: 13px; color: #888; }
+  .update-badge {
+    font-size: 11px;
+    background: #f0f8f4;
+    color: #0f6e56;
+    border-radius: 20px;
+    padding: 4px 12px;
+    white-space: nowrap;
+  }
+  .filter-bar { margin-top: 1.25rem; display: flex; gap: 8px; flex-wrap: wrap; }
+  .filter-btn {
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    border: 0.5px solid #d0cfc8;
+    background: #fff;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .filter-btn:hover { background: #f5f4f0; }
+  .filter-btn.active { background: #1a3a2a; color: #fff; border-color: #1a3a2a; }
+  .loader {
+    text-align: center;
+    padding: 3rem;
+    color: #888;
+    font-size: 14px;
+    background: #fff;
+    border-radius: 16px;
+    border: 0.5px solid #e0dfd8;
+  }
+  .error-msg {
+    padding: 1.5rem 2rem;
+    color: #712b13;
+    font-size: 13px;
+    background: #faece7;
+    border-radius: 12px;
+    line-height: 1.7;
+  }
+  .error-msg strong { display: block; font-size: 14px; margin-bottom: 6px; }
+  .program-block {
+    background: #fff;
+    border-radius: 16px;
+    border: 0.5px solid #e0dfd8;
+    margin-bottom: 1rem;
+    overflow: hidden;
+  }
+  .program-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 0.5px solid #f0efe8;
+    cursor: pointer;
+    user-select: none;
+  }
+  .program-header:hover { background: #fafaf8; }
+  .program-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .program-name { font-size: 14px; font-weight: 500; color: #1a1a1a; flex: 1; }
+  .program-count { font-size: 11px; color: #aaa; }
+  .chevron { font-size: 12px; color: #bbb; transition: transform 0.2s; display: inline-block; }
+  .chevron.open { transform: rotate(180deg); }
+  .program-body { padding: 0 20px 16px; display: none; }
+  .program-body.open { display: block; }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 8px;
+    margin-top: 14px;
+    margin-bottom: 4px;
+  }
+  .metric-card { background: #f5f4f0; border-radius: 10px; padding: 12px 14px; }
+  .metric-label { font-size: 11px; color: #777; margin-bottom: 4px; line-height: 1.3; }
+  .metric-value { font-size: 22px; font-weight: 600; color: #1a1a1a; }
+  .metric-comment { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .metric-year { font-size: 10px; color: #bbb; margin-top: 4px; }
+  .table-wrap { margin-top: 14px; }
+  .data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 0.5px solid #f0efe8;
+    gap: 12px;
+  }
+  .data-row:last-child { border-bottom: none; }
+  .data-desc { font-size: 12px; color: #555; flex: 1; line-height: 1.4; }
+  .data-right { text-align: right; flex-shrink: 0; }
+  .data-val { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+  .data-meta { font-size: 11px; color: #aaa; }
+  .footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 2rem; padding-bottom: 1rem; }
+  .dot-0 { background: #1D9E75; }
+  .dot-1 { background: #534AB7; }
+  .dot-2 { background: #D85A30; }
+  .dot-3 { background: #185FA5; }
+  .dot-4 { background: #EF9F27; }
+  .dot-5 { background: #993556; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <h1>Crecer en Renca — Indicadores</h1>
+        <p>Política de niñez · Municipalidad de Renca</p>
+      </div>
+      <span class="update-badge" id="update-badge">Cargando...</span>
+    </div>
+    <div class="filter-bar" id="filter-bar"></div>
+  </div>
+  <div id="dashboard">
+    <div class="loader">Conectando con Google Sheets...</div>
+  </div>
+  <div class="footer">Datos actualizados desde Google Sheets · Crecer en Renca 2026</div>
+</div>
+
+<script>
+const SHEET_ID = "1HCAw7G2ysf6VRafuZpYrxolidaPF9OvE7KJ4bv_vDRo";
+const SHEET_NAME = "Indicadores";
+const PROGRAM_COLORS = ["dot-0","dot-1","dot-2","dot-3","dot-4","dot-5"];
+let allData = [];
+
+async function loadSheet() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+    allData = rows
+      .filter(r => r.c && r.c[0] && r.c[0].v)
+      .map(r => ({
+        programa:    r.c[0]?.v || "",
+        indicador:   r.c[1]?.v || "",
+        valor:       r.c[2]?.v?.toString() || "",
+        comentario:  r.c[3]?.v || "",
+        año:         r.c[4]?.v?.toString() || ""
+      }));
+    renderFilters(allData);
+    renderDashboard(allData);
+    const now = new Date();
+    document.getElementById("update-badge").textContent =
+      "Actualizado " + now.toLocaleDateString("es-CL", { day:"numeric", month:"long", year:"numeric" });
+  } catch(e) {
+    document.getElementById("dashboard").innerHTML =
+      `<div class="error-msg"><strong>No se pudo conectar con Google Sheets.</strong>Verifica que el Sheet esté público (cualquier persona con el enlace → lector).<br><br>Error: ${e.message}</div>`;
+    document.getElementById("update-badge").textContent = "Sin conexión";
+  }
+}
+
+function renderFilters(data) {
+  const programas = [...new Set(data.map(r => r.programa))];
+  const bar = document.getElementById("filter-bar");
+  bar.innerHTML = `<button class="filter-btn active" onclick="filterProgram('todos', this)">Todos</button>`;
+  programas.forEach(p => {
+    const btn = document.createElement("button");
+    btn.className = "filter-btn";
+    btn.textContent = p;
+    btn.onclick = function() { filterProgram(p, this); };
+    bar.appendChild(btn);
+  });
+}
+
+function filterProgram(programa, btn) {
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  const filtered = programa === "todos" ? allData : allData.filter(r => r.programa === programa);
+  renderDashboard(filtered);
+}
+
+function isSmallValue(val) {
+  const clean = val.replace(/[$%,.MMmm\s]/g, "").trim();
+  return !isNaN(parseFloat(clean)) && val.length <= 7;
+}
+
+function groupByProgram(data) {
+  const map = {};
+  data.forEach(row => {
+    if (!map[row.programa]) map[row.programa] = [];
+    map[row.programa].push(row);
+  });
+  return map;
+}
+
+function renderDashboard(data) {
+  const groups = groupByProgram(data);
+  const programas = Object.keys(groups);
+  const el = document.getElementById("dashboard");
+
+  if (programas.length === 0) {
+    el.innerHTML = `<div class="loader">Sin datos para mostrar.</div>`;
+    return;
+  }
+
+  el.innerHTML = programas.map((programa, i) => {
+    const rows = groups[programa];
+    const colorClass = PROGRAM_COLORS[i % PROGRAM_COLORS.length];
+    const smallRows = rows.filter(r => isSmallValue(r.valor));
+    const bigRows = rows.filter(r => !isSmallValue(r.valor));
+    const blockId = "block-" + i;
+
+    const metricCards = smallRows.map(r => `
+      <div class="metric-card">
+        <div class="metric-label">${r.indicador}</div>
+        <div class="metric-value">${r.valor}</div>
+        ${r.comentario ? `<div class="metric-comment">${r.comentario}</div>` : ""}
+        ${r.año ? `<div class="metric-year">${r.año}</div>` : ""}
+      </div>`).join("");
+
+    const tableRows = bigRows.map(r => `
+      <div class="data-row">
+        <div class="data-desc">${r.indicador}${r.año ? ` <span style="color:#ccc">(${r.año})</span>` : ""}</div>
+        <div class="data-right">
+          <div class="data-val">${r.valor}</div>
+          ${r.comentario ? `<div class="data-meta">${r.comentario}</div>` : ""}
+        </div>
+      </div>`).join("");
+
+    return `
+      <div class="program-block">
+        <div class="program-header" onclick="toggleBlock('${blockId}')">
+          <div class="program-dot ${colorClass}"></div>
+          <span class="program-name">${programa}</span>
+          <span class="program-count">${rows.length} indicador${rows.length !== 1 ? "es" : ""}</span>
+          <span class="chevron open" id="chev-${blockId}">▼</span>
+        </div>
+        <div class="program-body open" id="${blockId}">
+          ${smallRows.length > 0 ? `<div class="metric-grid">${metricCards}</div>` : ""}
+          ${bigRows.length > 0 ? `<div class="table-wrap">${tableRows}</div>` : ""}
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function toggleBlock(id) {
+  const body = document.getElementById(id);
+  const chev = document.getElementById("chev-" + id);
+  const isOpen = body.classList.contains("open");
+  body.classList.toggle("open", !isOpen);
+  chev.classList.toggle("open", !isOpen);
+}
+
+loadSheet();
+</script>
+</body>
+</html>
