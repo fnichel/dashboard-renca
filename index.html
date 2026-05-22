@@ -87,32 +87,64 @@
   .chevron.open { transform: rotate(180deg); }
   .program-body { padding: 0 20px 16px; display: none; }
   .program-body.open { display: block; }
-  .metric-grid {
+
+  /* Grupo de indicadores por nombre */
+  .indicator-group { margin-top: 14px; border: 0.5px solid #f0efe8; border-radius: 10px; overflow: hidden; }
+  .indicator-group-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 8px 14px 6px;
+    background: #fafaf8;
+    border-bottom: 0.5px solid #f0efe8;
+  }
+  .year-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 0.5px solid #f0efe8;
+    gap: 12px;
+  }
+  .year-row:last-child { border-bottom: none; }
+  .year-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 44px;
+    text-align: center;
+  }
+  .year-2024 { background: #e6f1fb; color: #0c447c; }
+  .year-2025 { background: #e1f5ee; color: #085041; }
+  .year-2026 { background: #eeedfe; color: #26215c; }
+  .year-other { background: #f1efe8; color: #444441; }
+  .year-value { font-size: 16px; font-weight: 600; color: #1a1a1a; min-width: 70px; }
+  .year-comment { font-size: 12px; color: #aaa; flex: 1; }
+
+  /* Para indicadores sin comparativa (solo un año) */
+  .single-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 8px;
     margin-top: 14px;
-    margin-bottom: 4px;
   }
-  .metric-card { background: #f5f4f0; border-radius: 10px; padding: 12px 14px; }
+  .metric-card { background: #f5f4f0; border-radius: 10px; padding: 12px 14px; position: relative; }
   .metric-label { font-size: 11px; color: #777; margin-bottom: 4px; line-height: 1.3; }
   .metric-value { font-size: 22px; font-weight: 600; color: #1a1a1a; }
   .metric-comment { font-size: 11px; color: #aaa; margin-top: 2px; }
-  .metric-year { font-size: 10px; color: #bbb; margin-top: 4px; }
-  .table-wrap { margin-top: 14px; }
-  .data-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 0.5px solid #f0efe8;
-    gap: 12px;
+  .metric-year-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-top: 6px;
   }
-  .data-row:last-child { border-bottom: none; }
-  .data-desc { font-size: 12px; color: #555; flex: 1; line-height: 1.4; }
-  .data-right { text-align: right; flex-shrink: 0; }
-  .data-val { font-size: 14px; font-weight: 500; color: #1a1a1a; }
-  .data-meta { font-size: 11px; color: #aaa; }
+
   .footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 2rem; padding-bottom: 1rem; }
   .dot-0 { background: #1D9E75; }
   .dot-1 { background: #534AB7; }
@@ -156,11 +188,11 @@ async function loadSheet() {
     allData = rows
       .filter(r => r.c && r.c[0] && r.c[0].v)
       .map(r => ({
-        programa:    r.c[0]?.v || "",
-        indicador:   r.c[1]?.v || "",
-        valor:       r.c[2]?.v?.toString() || "",
-        comentario:  r.c[3]?.v || "",
-        año:         r.c[4]?.v?.toString() || ""
+        programa:   r.c[0]?.v || "",
+        indicador:  r.c[1]?.v || "",
+        valor:      r.c[2]?.v?.toString() || "",
+        comentario: r.c[3]?.v || "",
+        año:        r.c[4]?.v?.toString() || ""
       }));
     renderFilters(allData);
     renderDashboard(allData);
@@ -194,11 +226,6 @@ function filterProgram(programa, btn) {
   renderDashboard(filtered);
 }
 
-function isSmallValue(val) {
-  const clean = val.replace(/[$%,.MMmm\s]/g, "").trim();
-  return !isNaN(parseFloat(clean)) && val.length <= 7;
-}
-
 function groupByProgram(data) {
   const map = {};
   data.forEach(row => {
@@ -206,6 +233,29 @@ function groupByProgram(data) {
     map[row.programa].push(row);
   });
   return map;
+}
+
+function groupByIndicator(rows) {
+  const map = {};
+  rows.forEach(row => {
+    if (!map[row.indicador]) map[row.indicador] = [];
+    map[row.indicador].push(row);
+  });
+  return map;
+}
+
+function yearBadgeClass(año) {
+  if (año === "2024") return "year-2024";
+  if (año === "2025") return "year-2025";
+  if (año === "2026") return "year-2026";
+  return "year-other";
+}
+
+function metricYearStyle(año) {
+  if (año === "2024") return "background:#e6f1fb;color:#0c447c;";
+  if (año === "2025") return "background:#e1f5ee;color:#085041;";
+  if (año === "2026") return "background:#eeedfe;color:#26215c;";
+  return "background:#f1efe8;color:#444441;";
 }
 
 function renderDashboard(data) {
@@ -221,26 +271,35 @@ function renderDashboard(data) {
   el.innerHTML = programas.map((programa, i) => {
     const rows = groups[programa];
     const colorClass = PROGRAM_COLORS[i % PROGRAM_COLORS.length];
-    const smallRows = rows.filter(r => isSmallValue(r.valor));
-    const bigRows = rows.filter(r => !isSmallValue(r.valor));
     const blockId = "block-" + i;
+    const byIndicator = groupByIndicator(rows);
 
-    const metricCards = smallRows.map(r => `
-      <div class="metric-card">
-        <div class="metric-label">${r.indicador}</div>
-        <div class="metric-value">${r.valor}</div>
-        ${r.comentario ? `<div class="metric-comment">${r.comentario}</div>` : ""}
-        ${r.año ? `<div class="metric-year">${r.año}</div>` : ""}
-      </div>`).join("");
-
-    const tableRows = bigRows.map(r => `
-      <div class="data-row">
-        <div class="data-desc">${r.indicador}${r.año ? ` <span style="color:#ccc">(${r.año})</span>` : ""}</div>
-        <div class="data-right">
-          <div class="data-val">${r.valor}</div>
-          ${r.comentario ? `<div class="data-meta">${r.comentario}</div>` : ""}
-        </div>
-      </div>`).join("");
+    const bodyHTML = Object.entries(byIndicator).map(([indicador, entries]) => {
+      if (entries.length === 1) {
+        const d = entries[0];
+        return `
+          <div class="single-grid">
+            <div class="metric-card">
+              <div class="metric-label">${d.indicador}</div>
+              <div class="metric-value">${d.valor}</div>
+              ${d.comentario ? `<div class="metric-comment">${d.comentario}</div>` : ""}
+              ${d.año ? `<span class="metric-year-badge" style="${metricYearStyle(d.año)}">${d.año}</span>` : ""}
+            </div>
+          </div>`;
+      } else {
+        const sorted = [...entries].sort((a, b) => (a.año || "").localeCompare(b.año || ""));
+        return `
+          <div class="indicator-group">
+            <div class="indicator-group-label">${indicador}</div>
+            ${sorted.map(d => `
+              <div class="year-row">
+                <span class="year-badge ${yearBadgeClass(d.año)}">${d.año || "—"}</span>
+                <span class="year-value">${d.valor}</span>
+                <span class="year-comment">${d.comentario || ""}</span>
+              </div>`).join("")}
+          </div>`;
+      }
+    }).join("");
 
     return `
       <div class="program-block">
@@ -251,8 +310,7 @@ function renderDashboard(data) {
           <span class="chevron open" id="chev-${blockId}">▼</span>
         </div>
         <div class="program-body open" id="${blockId}">
-          ${smallRows.length > 0 ? `<div class="metric-grid">${metricCards}</div>` : ""}
-          ${bigRows.length > 0 ? `<div class="table-wrap">${tableRows}</div>` : ""}
+          ${bodyHTML}
         </div>
       </div>`;
   }).join("");
