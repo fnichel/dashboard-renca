@@ -94,11 +94,7 @@
     margin-top: 14px;
     margin-bottom: 4px;
   }
-  .metric-card {
-    background: #f5f4f0;
-    border-radius: 10px;
-    padding: 12px 14px;
-  }
+  .metric-card { background: #f5f4f0; border-radius: 10px; padding: 12px 14px; }
   .metric-label { font-size: 11px; color: #777; margin-bottom: 4px; line-height: 1.3; }
   .metric-value { font-size: 22px; font-weight: 600; color: #1a1a1a; }
   .metric-comment { font-size: 11px; color: #aaa; margin-top: 2px; }
@@ -117,105 +113,69 @@
   .data-right { text-align: right; flex-shrink: 0; }
   .data-val { font-size: 14px; font-weight: 500; color: #1a1a1a; }
   .data-meta { font-size: 11px; color: #aaa; }
-  .footer {
-    text-align: center;
-    font-size: 11px;
-    color: #bbb;
-    margin-top: 2rem;
-    padding-bottom: 1rem;
-  }
+  .footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 2rem; padding-bottom: 1rem; }
   .dot-0 { background: #1D9E75; }
   .dot-1 { background: #534AB7; }
   .dot-2 { background: #D85A30; }
   .dot-3 { background: #185FA5; }
   .dot-4 { background: #EF9F27; }
   .dot-5 { background: #993556; }
-  input[type=file] {
-    font-size: 12px;
-    color: #555;
-    margin-top: 10px;
-    display: block;
-  }
 </style>
 </head>
 <body>
 <div class="container">
-
   <div class="header">
     <div class="header-top">
       <div>
         <h1>Crecer en Renca — Indicadores</h1>
         <p>Política de niñez · Municipalidad de Renca</p>
       </div>
-      <span class="update-badge" id="update-badge">Sin datos</span>
+      <span class="update-badge" id="update-badge">Cargando...</span>
     </div>
     <div class="filter-bar" id="filter-bar"></div>
   </div>
-
   <div id="dashboard">
-    <div class="error-msg">
-      <strong>Carga el archivo CSV para ver los indicadores</strong>
-      Descarga el Google Sheet como CSV (Archivo → Descargar → CSV) y selecciónalo aquí.<br><br>
-      <input type="file" accept=".csv" onchange="handleFile(this)">
-    </div>
+    <div class="loader">Conectando con Google Sheets...</div>
   </div>
-
-  <div class="footer">Crecer en Renca 2026 · Municipalidad de Renca</div>
+  <div class="footer">Datos actualizados desde Google Sheets · Crecer en Renca 2026</div>
 </div>
 
 <script>
+const SHEET_ID = "1HCAw7G2ysf6VRafuZpYrxolidaPF9OvE7KJ4bv_vDRo";
+const SHEET_NAME = "Indicadores";
 const PROGRAM_COLORS = ["dot-0","dot-1","dot-2","dot-3","dot-4","dot-5"];
 let allData = [];
 
-function handleFile(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const text = e.target.result;
-    parseAndRender(text, file.name);
-  };
-  reader.readAsText(file, "UTF-8");
-}
-
-function parseCSV(text) {
-  const lines = text.trim().split("\n");
-  const headers = lines[0].split(",").map(h => h.trim().replace(/^"|"$/g, ""));
-  return lines.slice(1).map(line => {
-    const cols = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g) || [];
-    const clean = cols.map(c => c.trim().replace(/^"|"$/g, ""));
-    const obj = {};
-    headers.forEach((h, i) => obj[h] = clean[i] || "");
-    return obj;
-  }).filter(r => r["Programa"] && r["Programa"].trim() !== "");
-}
-
-function parseAndRender(text, filename) {
-  allData = parseCSV(text);
-  if (allData.length === 0) {
+async function loadSheet() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
+  try {
+    const res = await fetch(url);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+    allData = rows
+      .filter(r => r.c && r.c[0] && r.c[0].v)
+      .map(r => ({
+        programa:    r.c[0]?.v || "",
+        indicador:   r.c[1]?.v || "",
+        valor:       r.c[2]?.v?.toString() || "",
+        comentario:  r.c[3]?.v || "",
+        año:         r.c[4]?.v?.toString() || ""
+      }));
+    renderFilters(allData);
+    renderDashboard(allData);
+    const now = new Date();
+    document.getElementById("update-badge").textContent =
+      "Actualizado " + now.toLocaleDateString("es-CL", { day:"numeric", month:"long", year:"numeric" });
+  } catch(e) {
     document.getElementById("dashboard").innerHTML =
-      `<div class="error-msg"><strong>No se pudo leer el archivo.</strong>Verifica que sea el CSV correcto con columnas: Programa, Indicador, Valor, Comentario, Año.</div>`;
-    return;
+      `<div class="error-msg"><strong>No se pudo conectar con Google Sheets.</strong>Verifica que el Sheet esté público (cualquier persona con el enlace → lector).<br><br>Error: ${e.message}</div>`;
+    document.getElementById("update-badge").textContent = "Sin conexión";
   }
-  renderFilters(allData);
-  renderDashboard(allData);
-  const now = new Date();
-  document.getElementById("update-badge").textContent =
-    "Cargado " + now.toLocaleDateString("es-CL", { day:"numeric", month:"long", year:"numeric" });
-}
-
-function groupByProgram(data) {
-  const map = {};
-  data.forEach(row => {
-    const p = row["Programa"];
-    if (!map[p]) map[p] = [];
-    map[p].push(row);
-  });
-  return map;
 }
 
 function renderFilters(data) {
-  const programas = [...new Set(data.map(r => r["Programa"]))];
+  const programas = [...new Set(data.map(r => r.programa))];
   const bar = document.getElementById("filter-bar");
   bar.innerHTML = `<button class="filter-btn active" onclick="filterProgram('todos', this)">Todos</button>`;
   programas.forEach(p => {
@@ -230,7 +190,7 @@ function renderFilters(data) {
 function filterProgram(programa, btn) {
   document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
-  const filtered = programa === "todos" ? allData : allData.filter(r => r["Programa"] === programa);
+  const filtered = programa === "todos" ? allData : allData.filter(r => r.programa === programa);
   renderDashboard(filtered);
 }
 
@@ -239,32 +199,46 @@ function isSmallValue(val) {
   return !isNaN(parseFloat(clean)) && val.length <= 7;
 }
 
+function groupByProgram(data) {
+  const map = {};
+  data.forEach(row => {
+    if (!map[row.programa]) map[row.programa] = [];
+    map[row.programa].push(row);
+  });
+  return map;
+}
+
 function renderDashboard(data) {
   const groups = groupByProgram(data);
   const programas = Object.keys(groups);
   const el = document.getElementById("dashboard");
 
+  if (programas.length === 0) {
+    el.innerHTML = `<div class="loader">Sin datos para mostrar.</div>`;
+    return;
+  }
+
   el.innerHTML = programas.map((programa, i) => {
     const rows = groups[programa];
     const colorClass = PROGRAM_COLORS[i % PROGRAM_COLORS.length];
-    const smallRows = rows.filter(r => isSmallValue(r["Valor"]));
-    const bigRows = rows.filter(r => !isSmallValue(r["Valor"]));
+    const smallRows = rows.filter(r => isSmallValue(r.valor));
+    const bigRows = rows.filter(r => !isSmallValue(r.valor));
     const blockId = "block-" + i;
 
     const metricCards = smallRows.map(r => `
       <div class="metric-card">
-        <div class="metric-label">${r["Indicador"]}</div>
-        <div class="metric-value">${r["Valor"]}</div>
-        ${r["Comentario"] ? `<div class="metric-comment">${r["Comentario"]}</div>` : ""}
-        ${r["Año"] ? `<div class="metric-year">${r["Año"]}</div>` : ""}
+        <div class="metric-label">${r.indicador}</div>
+        <div class="metric-value">${r.valor}</div>
+        ${r.comentario ? `<div class="metric-comment">${r.comentario}</div>` : ""}
+        ${r.año ? `<div class="metric-year">${r.año}</div>` : ""}
       </div>`).join("");
 
     const tableRows = bigRows.map(r => `
       <div class="data-row">
-        <div class="data-desc">${r["Indicador"]}${r["Año"] ? ` <span style="color:#ccc">(${r["Año"]})</span>` : ""}</div>
+        <div class="data-desc">${r.indicador}${r.año ? ` <span style="color:#ccc">(${r.año})</span>` : ""}</div>
         <div class="data-right">
-          <div class="data-val">${r["Valor"]}</div>
-          ${r["Comentario"] ? `<div class="data-meta">${r["Comentario"]}</div>` : ""}
+          <div class="data-val">${r.valor}</div>
+          ${r.comentario ? `<div class="data-meta">${r.comentario}</div>` : ""}
         </div>
       </div>`).join("");
 
@@ -291,6 +265,8 @@ function toggleBlock(id) {
   body.classList.toggle("open", !isOpen);
   chev.classList.toggle("open", !isOpen);
 }
+
+loadSheet();
 </script>
 </body>
 </html>
