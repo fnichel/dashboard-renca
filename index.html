@@ -1,4 +1,3 @@
-Index · HTML
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,7 +13,7 @@ Index · HTML
     padding: 2rem 1rem;
     min-height: 100vh;
   }
-  .container { max-width: 900px; margin: 0 auto; }
+  .container { max-width: 960px; margin: 0 auto; }
   .header {
     background: #fff;
     border-radius: 16px;
@@ -25,60 +24,23 @@ Index · HTML
   .header-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
   .header h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px; }
   .header p { font-size: 13px; color: #888; }
-  .update-badge {
-    font-size: 11px;
-    background: #f0f8f4;
-    color: #0f6e56;
-    border-radius: 20px;
-    padding: 4px 12px;
-    white-space: nowrap;
-  }
+  .update-badge { font-size: 11px; background: #f0f8f4; color: #0f6e56; border-radius: 20px; padding: 4px 12px; white-space: nowrap; }
   .filter-bar { margin-top: 1.25rem; display: flex; gap: 8px; flex-wrap: wrap; }
   .filter-btn {
-    font-size: 12px;
-    padding: 5px 14px;
-    border-radius: 20px;
-    border: 0.5px solid #d0cfc8;
-    background: #fff;
-    color: #555;
-    cursor: pointer;
-    transition: all 0.15s;
+    font-size: 12px; padding: 5px 14px; border-radius: 20px;
+    border: 0.5px solid #d0cfc8; background: #fff; color: #555;
+    cursor: pointer; transition: all 0.15s;
   }
   .filter-btn:hover { background: #f5f4f0; }
   .filter-btn.active { background: #1a3a2a; color: #fff; border-color: #1a3a2a; }
-  .loader {
-    text-align: center;
-    padding: 3rem;
-    color: #888;
-    font-size: 14px;
-    background: #fff;
-    border-radius: 16px;
-    border: 0.5px solid #e0dfd8;
-  }
-  .error-msg {
-    padding: 1.5rem 2rem;
-    color: #712b13;
-    font-size: 13px;
-    background: #faece7;
-    border-radius: 12px;
-    line-height: 1.7;
-  }
+  .loader { text-align: center; padding: 3rem; color: #888; font-size: 14px; background: #fff; border-radius: 16px; border: 0.5px solid #e0dfd8; }
+  .error-msg { padding: 1.5rem 2rem; color: #712b13; font-size: 13px; background: #faece7; border-radius: 12px; line-height: 1.7; }
   .error-msg strong { display: block; font-size: 14px; margin-bottom: 6px; }
-  .program-block {
-    background: #fff;
-    border-radius: 16px;
-    border: 0.5px solid #e0dfd8;
-    margin-bottom: 1rem;
-    overflow: hidden;
-  }
+
+  .program-block { background: #fff; border-radius: 16px; border: 0.5px solid #e0dfd8; margin-bottom: 1rem; overflow: hidden; }
   .program-header {
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    border-bottom: 0.5px solid #f0efe8;
-    cursor: pointer;
-    user-select: none;
+    padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 0.5px solid #f0efe8; cursor: pointer; user-select: none;
   }
   .program-header:hover { background: #fafaf8; }
   .program-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -86,73 +48,37 @@ Index · HTML
   .program-count { font-size: 11px; color: #aaa; }
   .chevron { font-size: 12px; color: #bbb; transition: transform 0.2s; display: inline-block; }
   .chevron.open { transform: rotate(180deg); }
-  .program-body { padding: 0 20px 16px; display: none; }
+  .program-body { padding: 14px 20px 18px; display: none; }
   .program-body.open { display: block; }
- 
-  /* Grupo de indicadores por nombre */
-  .indicator-group { margin-top: 14px; border: 0.5px solid #f0efe8; border-radius: 10px; overflow: hidden; }
-  .indicator-group-label {
-    font-size: 11px;
-    font-weight: 500;
-    color: #999;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    padding: 8px 14px 6px;
-    background: #fafaf8;
-    border-bottom: 0.5px solid #f0efe8;
-  }
-  .year-row {
-    display: flex;
-    align-items: center;
-    padding: 10px 14px;
-    border-bottom: 0.5px solid #f0efe8;
-    gap: 12px;
-  }
-  .year-row:last-child { border-bottom: none; }
-  .year-badge {
-    font-size: 11px;
-    font-weight: 600;
-    padding: 3px 9px;
-    border-radius: 20px;
-    white-space: nowrap;
-    flex-shrink: 0;
-    min-width: 44px;
-    text-align: center;
-  }
-  .year-2024 { background: #e6f1fb; color: #0c447c; }
-  .year-2025 { background: #e1f5ee; color: #085041; }
-  .year-2026 { background: #eeedfe; color: #26215c; }
-  .year-other { background: #f1efe8; color: #444441; }
-  .year-value { font-size: 16px; font-weight: 600; color: #1a1a1a; min-width: 70px; }
-  .year-comment { font-size: 12px; color: #aaa; flex: 1; }
- 
-  /* Para indicadores sin comparativa (solo un año) */
-  .single-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 8px;
-    margin-top: 14px;
-  }
-  .metric-card { background: #f5f4f0; border-radius: 10px; padding: 12px 14px; position: relative; }
-  .metric-label { font-size: 11px; color: #777; margin-bottom: 4px; line-height: 1.3; }
-  .metric-value { font-size: 22px; font-weight: 600; color: #1a1a1a; }
-  .metric-comment { font-size: 11px; color: #aaa; margin-top: 2px; }
-  .metric-year-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 20px;
-    margin-top: 6px;
-  }
- 
-  .footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 2rem; padding-bottom: 1rem; }
+
+  .ind-block { margin-bottom: 16px; }
+  .ind-block:last-child { margin-bottom: 0; }
+  .ind-label { font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+
+  .year-cols { display: grid; gap: 8px; }
+  .yc { background: #f5f4f0; border-radius: 10px; padding: 12px 14px; }
+  .yc-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px; }
+  .y2024 { background: #e6f1fb; color: #0c447c; }
+  .y2025 { background: #e1f5ee; color: #085041; }
+  .y2026 { background: #eeedfe; color: #26215c; }
+  .yother { background: #f1efe8; color: #444441; }
+  .yc-val { font-size: 22px; font-weight: 600; color: #1a1a1a; line-height: 1; }
+  .yc-meta { font-size: 11px; color: #aaa; margin-top: 4px; }
+
+  .single-cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .sc { background: #f5f4f0; border-radius: 10px; padding: 12px 14px; }
+  .sc-label { font-size: 11px; color: #777; margin-bottom: 4px; line-height: 1.3; }
+  .sc-val { font-size: 22px; font-weight: 600; color: #1a1a1a; }
+  .sc-meta { font-size: 11px; color: #aaa; margin-top: 2px; }
+  .sc-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 6px; }
+
   .dot-0 { background: #1D9E75; }
   .dot-1 { background: #534AB7; }
   .dot-2 { background: #D85A30; }
   .dot-3 { background: #185FA5; }
   .dot-4 { background: #EF9F27; }
   .dot-5 { background: #993556; }
+  .footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 2rem; padding-bottom: 1rem; }
 </style>
 </head>
 <body>
@@ -167,26 +93,23 @@ Index · HTML
     </div>
     <div class="filter-bar" id="filter-bar"></div>
   </div>
-  <div id="dashboard">
-    <div class="loader">Conectando con Google Sheets...</div>
-  </div>
+  <div id="dashboard"><div class="loader">Conectando con Google Sheets...</div></div>
   <div class="footer">Datos actualizados desde Google Sheets · Crecer en Renca 2026</div>
 </div>
- 
+
 <script>
 const SHEET_ID = "1HCAw7G2ysf6VRafuZpYrxolidaPF9OvE7KJ4bv_vDRo";
 const SHEET_NAME = "Indicadores";
 const PROGRAM_COLORS = ["dot-0","dot-1","dot-2","dot-3","dot-4","dot-5"];
 let allData = [];
- 
+
 async function loadSheet() {
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(SHEET_NAME)}`;
   try {
     const res = await fetch(url);
     const text = await res.text();
     const json = JSON.parse(text.substring(47, text.length - 2));
-    const rows = json.table.rows;
-    allData = rows
+    allData = json.table.rows
       .filter(r => r.c && r.c[0] && r.c[0].v)
       .map(r => ({
         programa:   r.c[0]?.v || "",
@@ -202,11 +125,11 @@ async function loadSheet() {
       "Actualizado " + now.toLocaleDateString("es-CL", { day:"numeric", month:"long", year:"numeric" });
   } catch(e) {
     document.getElementById("dashboard").innerHTML =
-      `<div class="error-msg"><strong>No se pudo conectar con Google Sheets.</strong>Verifica que el Sheet esté público (cualquier persona con el enlace → lector).<br><br>Error: ${e.message}</div>`;
+      `<div class="error-msg"><strong>No se pudo conectar con Google Sheets.</strong>Verifica que el Sheet esté público.<br><br>Error: ${e.message}</div>`;
     document.getElementById("update-badge").textContent = "Sin conexión";
   }
 }
- 
+
 function renderFilters(data) {
   const programas = [...new Set(data.map(r => r.programa))];
   const bar = document.getElementById("filter-bar");
@@ -219,89 +142,70 @@ function renderFilters(data) {
     bar.appendChild(btn);
   });
 }
- 
+
 function filterProgram(programa, btn) {
   document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
   btn.classList.add("active");
   const filtered = programa === "todos" ? allData : allData.filter(r => r.programa === programa);
   renderDashboard(filtered);
 }
- 
-function groupByProgram(data) {
+
+function groupBy(arr, key) {
   const map = {};
-  data.forEach(row => {
-    if (!map[row.programa]) map[row.programa] = [];
-    map[row.programa].push(row);
-  });
+  arr.forEach(r => { if (!map[r[key]]) map[r[key]] = []; map[r[key]].push(r); });
   return map;
 }
- 
-function groupByIndicator(rows) {
-  const map = {};
-  rows.forEach(row => {
-    if (!map[row.indicador]) map[row.indicador] = [];
-    map[row.indicador].push(row);
-  });
-  return map;
+
+function yearClass(año) {
+  if (año === "2024") return "y2024";
+  if (año === "2025") return "y2025";
+  if (año === "2026") return "y2026";
+  return "yother";
 }
- 
-function yearBadgeClass(año) {
-  if (año === "2024") return "year-2024";
-  if (año === "2025") return "year-2025";
-  if (año === "2026") return "year-2026";
-  return "year-other";
-}
- 
-function metricYearStyle(año) {
-  if (año === "2024") return "background:#e6f1fb;color:#0c447c;";
-  if (año === "2025") return "background:#e1f5ee;color:#085041;";
-  if (año === "2026") return "background:#eeedfe;color:#26215c;";
-  return "background:#f1efe8;color:#444441;";
-}
- 
+
 function renderDashboard(data) {
-  const groups = groupByProgram(data);
-  const programas = Object.keys(groups);
+  const groups = groupBy(data, "programa");
   const el = document.getElementById("dashboard");
- 
-  if (programas.length === 0) {
-    el.innerHTML = `<div class="loader">Sin datos para mostrar.</div>`;
-    return;
-  }
- 
-  el.innerHTML = programas.map((programa, i) => {
-    const rows = groups[programa];
+  if (!Object.keys(groups).length) { el.innerHTML = `<div class="loader">Sin datos.</div>`; return; }
+
+  el.innerHTML = Object.entries(groups).map(([programa, rows], i) => {
     const colorClass = PROGRAM_COLORS[i % PROGRAM_COLORS.length];
     const blockId = "block-" + i;
-    const byIndicator = groupByIndicator(rows);
- 
-    const bodyHTML = Object.entries(byIndicator).map(([indicador, entries]) => {
-      if (entries.length === 1) {
-        const d = entries[0];
+    const byIndicador = groupBy(rows, "indicador");
+
+    const bodyHTML = Object.entries(byIndicador).map(([indicador, entries]) => {
+      const sorted = [...entries].sort((a, b) => (a.año || "").localeCompare(b.año || ""));
+
+      if (sorted.length > 1) {
+        const cols = sorted.length === 2 ? "1fr 1fr" : sorted.length === 3 ? "1fr 1fr 1fr" : "repeat(auto-fill, minmax(140px, 1fr))";
         return `
-          <div class="single-grid">
-            <div class="metric-card">
-              <div class="metric-label">${d.indicador}</div>
-              <div class="metric-value">${d.valor}</div>
-              ${d.comentario ? `<div class="metric-comment">${d.comentario}</div>` : ""}
-              ${d.año ? `<span class="metric-year-badge" style="${metricYearStyle(d.año)}">${d.año}</span>` : ""}
+          <div class="ind-block">
+            <div class="ind-label">${indicador}</div>
+            <div class="year-cols" style="grid-template-columns:${cols};">
+              ${sorted.map(d => `
+                <div class="yc">
+                  <span class="yc-badge ${yearClass(d.año)}">${d.año || "—"}</span>
+                  <div class="yc-val">${d.valor}</div>
+                  ${d.comentario ? `<div class="yc-meta">${d.comentario}</div>` : ""}
+                </div>`).join("")}
             </div>
           </div>`;
       } else {
-        const sorted = [...entries].sort((a, b) => (a.año || "").localeCompare(b.año || ""));
+        const d = sorted[0];
         return `
-          <div class="indicator-group">
-            <div class="indicator-group-label">${indicador}</div>
-            ${sorted.map(d => `
-              <div class="year-row">
-                <span class="year-badge ${yearBadgeClass(d.año)}">${d.año || "—"}</span>
-                <span class="year-value">${d.valor}</span>
-                <span class="year-comment">${d.comentario || ""}</span>
-              </div>`).join("")}
+          <div class="ind-block">
+            <div class="single-cols">
+              <div class="sc">
+                <div class="sc-label">${d.indicador}</div>
+                <div class="sc-val">${d.valor}</div>
+                ${d.comentario ? `<div class="sc-meta">${d.comentario}</div>` : ""}
+                ${d.año ? `<span class="sc-badge ${yearClass(d.año)}">${d.año}</span>` : ""}
+              </div>
+            </div>
           </div>`;
       }
     }).join("");
- 
+
     return `
       <div class="program-block">
         <div class="program-header" onclick="toggleBlock('${blockId}')">
@@ -310,13 +214,11 @@ function renderDashboard(data) {
           <span class="program-count">${rows.length} indicador${rows.length !== 1 ? "es" : ""}</span>
           <span class="chevron open" id="chev-${blockId}">▼</span>
         </div>
-        <div class="program-body open" id="${blockId}">
-          ${bodyHTML}
-        </div>
+        <div class="program-body open" id="${blockId}">${bodyHTML}</div>
       </div>`;
   }).join("");
 }
- 
+
 function toggleBlock(id) {
   const body = document.getElementById(id);
   const chev = document.getElementById("chev-" + id);
@@ -324,7 +226,7 @@ function toggleBlock(id) {
   body.classList.toggle("open", !isOpen);
   chev.classList.toggle("open", !isOpen);
 }
- 
+
 loadSheet();
 </script>
 </body>
